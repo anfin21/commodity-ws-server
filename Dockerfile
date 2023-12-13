@@ -6,8 +6,8 @@ COPY . .
 
 RUN go mod download
 
-RUN go build -o main .
+RUN go build -o ws-server .
 
 EXPOSE 8089
 
-CMD ["./main"]
+CMD ["./ws-server"]
