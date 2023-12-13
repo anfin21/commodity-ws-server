@@ -90,9 +90,6 @@ func subscribeToChannel(conn *websocket.Conn, channelName string) {
 }
 
 func unsubscribeFromChannel(conn *websocket.Conn, channelName string) {
-	channelsMutex.Lock()
-	defer channelsMutex.Unlock()
-
 	if channel, ok := channels[channelName]; ok {
 		delete(channel.subscribers, conn)
 	}
