@@ -17,17 +17,20 @@
                 output.scroll(0, output.scrollHeight);
             };
 
-            document.getElementById("open").onclick = function (evt) {
-                if (ws) {
-                    return false;
+            var connectWebSocket = function () {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    return;
                 }
-                ws = new WebSocket("ws://localhost:8089/ws");
+
+                ws = new WebSocket("wss://commodity-ws-server-tfochjcvgq-as.a.run.app/ws");
+
                 ws.onopen = function (evt) {
                     print("OPEN");
+                    ws.send("subscribe:commodity_price_realtime")
                 }
                 ws.onclose = function (evt) {
                     print("CLOSE");
-                    ws = null;
+                    setTimeout(connectWebSocket, 5000); // Reconnect every 5 seconds
                 }
                 ws.onmessage = function (evt) {
                     print("RESPONSE: " + evt.data);
@@ -35,6 +38,10 @@
                 ws.onerror = function (evt) {
                     print("ERROR: " + evt.data);
                 }
+            };
+
+            document.getElementById("open").onclick = function (evt) {
+                connectWebSocket();
                 return false;
             };
 

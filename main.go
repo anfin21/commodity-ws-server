@@ -90,9 +90,6 @@ func subscribeToChannel(conn *websocket.Conn, channelName string) {
 }
 
 func unsubscribeFromChannel(conn *websocket.Conn, channelName string) {
-	channelsMutex.Lock()
-	defer channelsMutex.Unlock()
-
 	if channel, ok := channels[channelName]; ok {
 		delete(channel.subscribers, conn)
 	}
@@ -113,7 +110,7 @@ func broadcastMessage(channelName string, mt int, message []byte) {
 	for conn := range channel.subscribers {
 		if err := conn.WriteMessage(mt, message); err != nil {
 			log.Println("write error:", err)
-			// Optional: handle failed delivery, e.g., by removing the subscriber
+			unsubscribeFromChannel(conn, channelName)
 		}
 	}
 }
