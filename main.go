@@ -39,16 +39,18 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 
 func reader(conn *websocket.Conn) {
 	for {
-		mt, message, err := conn.ReadMessage()
-		if err != nil {
-			log.Println("read:", err)
-			break
-		}
-		log.Printf("recv: %s", message)
+		if conn != nil {
+			mt, message, err := conn.ReadMessage()
+			if err != nil {
+				log.Println("read:", err)
+				break
+			}
+			log.Printf("recv: %s", message)
 
-		// Handle message for subscribing, unsubscribing, or sending to a channel
-		// Example: "subscribe:channel1" or "message:channel1:Hello World"
-		handleMessage(conn, mt, message)
+			// Handle message for subscribing, unsubscribing, or sending to a channel
+			// Example: "subscribe:channel1" or "message:channel1:Hello World"
+			handleMessage(conn, mt, message)
+		}
 	}
 }
 
