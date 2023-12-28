@@ -31,9 +31,12 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	defer wsConn.Close()
+	defer func() {
+		wsConn.Close()
+		log.Printf("Client Closed: localAddr=%v", wsConn.LocalAddr().String())
+	}()
 
-	log.Println("Client Connected")
+	log.Printf("Client Connected: localAddr=%v", wsConn.LocalAddr().String())
 	reader(wsConn)
 }
 
@@ -42,7 +45,7 @@ func reader(conn *websocket.Conn) {
 		if conn != nil {
 			mt, message, err := conn.ReadMessage()
 			if err != nil {
-				log.Println("read:", err)
+				log.Printf("read msg err=%v | message=%v | mt=%v", err, message, mt)
 				break
 			}
 			log.Printf("recv: %s", message)
