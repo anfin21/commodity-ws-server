@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
+	"github.com/lithammer/shortuuid/v4"
 )
 
 var addr = flag.String("addr", ":8089", "http service address")
@@ -27,16 +28,17 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {
+	wsID := shortuuid.New()
 	wsConn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		log.Printf("upgrader.Upgrade failed | wsID=%v | err=%v", wsID, err)
 	}
 	defer func() {
 		wsConn.Close()
-		log.Printf("Client Closed: localAddr=%v", wsConn.LocalAddr().String())
+		log.Printf("Client Closed: wsID=%v", wsID)
 	}()
 
-	log.Printf("Client Connected: localAddr=%v", wsConn.LocalAddr().String())
+	log.Printf("Client Connected: wsID=%v", wsID)
 	reader(wsConn)
 }
 
