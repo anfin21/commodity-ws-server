@@ -81,23 +81,7 @@ func main() {
 		go handleClient(client, clients, &mu)
 	})
 
-	http.ListenAndServe(":8080", mux)
-
-	// http.ListenAndServe(":8080", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	conn, _, _, err := ws.UpgradeHTTP(r, w)
-	// 	if err != nil {
-	// 		log.Errorf("WebSocket upgrade error: %v", err)
-	// 		return
-	// 	}
-
-	// 	client := NewClient(conn)
-
-	// 	mu.Lock()
-	// 	clients[client] = struct{}{}
-	// 	mu.Unlock()
-
-	// 	go handleClient(client, clients, &mu)
-	// }))
+	http.ListenAndServe(":8089", mux)
 }
 
 func handleClient(client *Client, clients map[*Client]struct{}, mu *sync.Mutex) {
