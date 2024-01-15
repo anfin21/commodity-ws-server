@@ -29,16 +29,20 @@ func NewClient(conn net.Conn) *Client {
 
 // Subscribe adds a channel to the client's subscription list.
 func (c *Client) Subscribe(channel string) {
+	log.Debugf("Client begin subscribe channel: %v", channel)
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.channels[channel] = struct{}{}
+	log.Debugf("Client subscribed channel: %v", channel)
 }
 
 // Unsubscribe removes a channel from the client's subscription list.
 func (c *Client) Unsubscribe(channel string) {
+	log.Debugf("Client begin unsubscribe channel: %v", channel)
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	delete(c.channels, channel)
+	log.Debugf("Client unsubscribed channel: %v", channel)
 }
 
 // Broadcast sends a message to all clients subscribed to a channel.
