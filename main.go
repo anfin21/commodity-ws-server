@@ -48,7 +48,7 @@ func Broadcast(clients map[*Client]struct{}, channel, message string) {
 		_, subscribed := client.channels[channel]
 		client.mu.Unlock()
 		if subscribed {
-			_ = wsutil.WriteServerMessage(client.conn, ws.OpText, []byte(fmt.Sprintf("message:%s:%s", channel, message)))
+			_ = wsutil.WriteServerMessage(client.conn, ws.OpText, []byte(fmt.Sprintf("%s", message)))
 		}
 	}
 }
