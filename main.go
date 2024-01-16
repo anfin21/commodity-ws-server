@@ -60,7 +60,7 @@ func Broadcast(clients map[*Client]struct{}, channel, message string) {
 func init() {
 	// logrus configs
 	log.SetFormatter(&log.TextFormatter{})
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.WarnLevel)
 }
 
 func main() {
