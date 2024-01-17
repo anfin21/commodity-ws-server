@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+INPUT_FILE=$1
+START_LINE=`head -n1 $INPUT_FILE`
+PATTERN="^[A-Z]+-[[:digit:]]+: "
+PATTERN_MERGE="^(Merge)"
+
+if [[ "$START_LINE" =~ $PATTERN_MERGE ]]; then
+  exit 0
+fi
+if ! [[ "$START_LINE" =~ $PATTERN ]]; then
+  echo "Message must contain Jira ticket, e.g: STOC-123: commit message"
+  exit 1
+fi
