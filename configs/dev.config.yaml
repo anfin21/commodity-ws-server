@@ -1,0 +1,7 @@
+SERVER:
+  NAME: commodity-ws-server
+  ENV: dev
+  HOST: https://api-dev.anfin.vn
+  PORT: 8089
+  CONFIG_FILE:
+  TZ: Asia/Ho_Chi_Minh

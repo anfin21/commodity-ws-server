@@ -7,9 +7,13 @@ import (
 	"strings"
 	"sync"
 
+	"log"
+
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
-	log "github.com/sirupsen/logrus"
+
+	"commodity-ws-server/configs"
+	"commodity-ws-server/pkg/logger"
 )
 
 // Client represents a connected client.
@@ -17,32 +21,34 @@ type Client struct {
 	conn     net.Conn
 	channels map[string]struct{}
 	mu       sync.Mutex
+	log      *logger.Logger
 }
 
 // NewClient creates a new Client.
-func NewClient(conn net.Conn) *Client {
+func NewClient(conn net.Conn, log *logger.Logger) *Client {
 	return &Client{
 		conn:     conn,
 		channels: make(map[string]struct{}),
+		log:      log,
 	}
 }
 
 // Subscribe adds a channel to the client's subscription list.
 func (c *Client) Subscribe(channel string) {
-	log.Debugf("Client begin subscribe channel: %v", channel)
+	c.log.Debugf("Client begin subscribe channel: %v", channel)
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.channels[channel] = struct{}{}
-	log.Debugf("Client subscribed channel: %v", channel)
+	c.log.Debugf("Client subscribed channel: %v", channel)
 }
 
 // Unsubscribe removes a channel from the client's subscription list.
 func (c *Client) Unsubscribe(channel string) {
-	log.Debugf("Client begin unsubscribe channel: %v", channel)
+	c.log.Debugf("Client begin unsubscribe channel: %v", channel)
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	delete(c.channels, channel)
-	log.Debugf("Client unsubscribed channel: %v", channel)
+	c.log.Debugf("Client unsubscribed channel: %v", channel)
 }
 
 // Broadcast sends a message to all clients subscribed to a channel.
@@ -57,13 +63,14 @@ func Broadcast(clients map[*Client]struct{}, channel, message string) {
 	}
 }
 
-func init() {
-	// logrus configs
-	log.SetFormatter(&log.TextFormatter{})
-	log.SetLevel(log.WarnLevel)
-}
-
 func main() {
+	cfg, err := configs.Load()
+	if err != nil {
+		log.Fatalf("Failed to load config: %v\n", err)
+	}
+
+	log := logger.New(cfg)
+
 	clients := make(map[*Client]struct{})
 	mu := sync.Mutex{}
 
@@ -76,19 +83,19 @@ func main() {
 			return
 		}
 
-		client := NewClient(conn)
+		client := NewClient(conn, log)
 
 		mu.Lock()
 		clients[client] = struct{}{}
 		mu.Unlock()
 
-		go handleClient(client, clients, &mu)
+		go handleClient(client, clients, &mu, log)
 	})
 
-	http.ListenAndServe(":8089", mux)
+	http.ListenAndServe(fmt.Sprintf(":%v", cfg.Server.Port), mux)
 }
 
-func handleClient(client *Client, clients map[*Client]struct{}, mu *sync.Mutex) {
+func handleClient(client *Client, clients map[*Client]struct{}, mu *sync.Mutex, log *logger.Logger) {
 	defer func() {
 		mu.Lock()
 		delete(clients, client)
@@ -100,7 +107,6 @@ func handleClient(client *Client, clients map[*Client]struct{}, mu *sync.Mutex) 
 	for {
 		msg, _, err := wsutil.ReadClientData(client.conn)
 		if err != nil {
-			log.Warnf("Error reading client data: %v", err)
 			return
 		}
 

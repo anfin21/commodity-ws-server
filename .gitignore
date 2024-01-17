@@ -1,0 +1,19 @@
+# IDE
+.idea
+.vscode
+.DS_Store
+
+# Config
+.env
+configs/*.config.yaml
+!configs/template.config.yaml
+!configs/dev.config.yaml
+
+# Credential
+assets/credentials/*
+!assets/credentials/firebase.dev.json
+
+vendor
+
+
+__debug_bin

@@ -1,0 +1,8 @@
+SERVER:
+  INSTANCE_CONNECTION_NAME:
+  NAME: promotion
+  ENV: dev
+  HOST:
+  PORT:
+  CONFIG_FILE:
+  TZ:
