@@ -52,7 +52,9 @@ func (c *Client) Unsubscribe(channel string) {
 }
 
 // Broadcast sends a message to all clients subscribed to a channel.
-func Broadcast(clients map[*Client]struct{}, channel, message string) {
+func Broadcast(clients map[*Client]struct{}, mu *sync.Mutex, channel, message string) {
+	mu.Lock()
+	defer mu.Unlock()
 	for client := range clients {
 		client.mu.Lock()
 		_, subscribed := client.channels[channel]
@@ -127,7 +129,7 @@ func handleClient(client *Client, clients map[*Client]struct{}, mu *sync.Mutex, 
 			if len(parts) == 2 {
 				channel, message := parts[0], parts[1]
 				log.Debugf("Handle payload CASE 3: BEGIN broadcast message=%v to channel=%v", message, channel)
-				Broadcast(clients, channel, message)
+				Broadcast(clients, mu, channel, message)
 			}
 		} else {
 			log.Debugf("Handle payload CASE 4: payload does not follow any defined format | payload=%v", payload)
